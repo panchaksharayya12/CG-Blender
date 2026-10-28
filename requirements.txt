@@ -1,0 +1,7 @@
+# Dependencies for "Real-Time 3D Game Environment Optimization Using Back-Face Culling"
+# Tested with Python 3.10 - 3.13 on Windows 10/11
+
+PyOpenGL>=3.1.5
+PyOpenGL-accelerate>=3.1.5
+pygame>=2.5.0
+numpy>=1.24.0
