@@ -46,7 +46,29 @@ Follow these exact steps during your demonstration:
    - Fly toward the red building with the yellow beacon at `(-25, 4, -15)`.
    - Walk through the door into the interior.
    - Toggle **`C`**: explain that because the normals point outward, looking from inside makes them back-facing; hence, with culling ON, the room is invisible from the inside.
-5. **Demonstrate Benchmark Mode (`U` and `T` Keys)**:
+5. **Demonstrate Dynamic Culling While Walking (`WASD`)**:
+   - Press **`W, A, S, D`** to walk through the town.
+   - Look at the live HUD: notice the active badge `🚶 WALKING ACTIVE • Real-Time Culling Dynamic Update`.
+   - Point out to the examiner that as the camera walks past buildings and changes viewing angles, the GPU continuously evaluates face normals ($\vec{N} \cdot \vec{V}$) and dynamically updates which triangles are culled in real time!
+6. **Activate the Visual Culling Inspector (`I` Key)**:
+   - Press **`I`** (or click `[I] Inspect: ON` on the HUD).
+   - **SHOW THE EXAMINER:**
+     - 🟢 **GREEN FACES:** Front-facing surfaces ($\vec{N} \cdot \vec{V} \ge 0$) currently rendered by the GPU.
+     - 🔴 **RED FACES:** Back-facing surfaces ($\vec{N} \cdot \vec{V} < 0$) culled/discarded by OpenGL hardware!
+   - Walk around any building with **WASD**: watch the faces dynamically transition from green to red across the silhouette edges in real-time as your view angle changes!
+7. **Click Specific Sections to Inspect (HUD or 3D Ray-Picking)**:
+   - Press **`Tab`** to free the mouse cursor.
+   - Click any section button on the selector bar:
+     - `[ 🏢 Buildings ]`, `[ 🏰 Towers ]`, `[ 🚪 Chamber ]`, `[ ⛲ Plaza ]`, `[ 🌲 Nature ]`, `[ ⚡ Stress ]`.
+   - **OR click directly on any 3D building or watchtower with your mouse!**
+   - **SHOW THE EXAMINER:**
+     - The **Section Inspector Panel** opens on the right side of the screen.
+     - It highlights the selected section with a golden bounding box.
+     - Displays the exact triangle breakdown:
+       - *Front Faces (Rendered): ~50%*
+       - *Back Faces (Culled): ~50%*
+     - Click **`[ 🚶 WALK TO SECTION ]`**: the camera immediately teleports right in front of that section, facing it, so you can walk around it immediately!
+8. **Demonstrate Benchmark Mode (`U` and `T` Keys)**:
    - Press **`U`** to disable the 60 FPS cap (unlocking GPU throughput).
    - Press **`T`** to activate the dense stress test city grid.
    - Note the FPS and Frame Time (ms) with Culling **ON** vs Culling **OFF**.
