@@ -55,7 +55,8 @@ from OpenGL.GL import (
 
 class CullingManager:
     """
-    Manages the OpenGL Face Culling state, polygon modes, and optimization metrics.
+    Manages the OpenGL Face Culling state, polygon modes, diagnostic inspector,
+    and section selection metrics.
     """
 
     def __init__(self):
@@ -64,15 +65,12 @@ class CullingManager:
         self.user_requested_culling = False
 
         # Target face to cull: GL_BACK discards back-facing polygons (standard optimization)
-        # GL_FRONT is provided for educational demonstration (culls front faces, rendering inside-out)
         self.cull_face_mode = GL_BACK
 
         # Winding order: GL_CCW means Counter-Clockwise vertices indicate front faces.
-        # This is the industry standard followed by Blender and OpenGL.
         self.front_face_mode = GL_CCW
 
         # Wireframe mode: GL_LINE allows visual inspection of polygon wireframes.
-        # This is the easiest way to visually witness back-face culling in action!
         self.wireframe_mode = False
 
         # Stress test mode: Spawns hundreds of buildings to stress GPU and highlight FPS gains.
@@ -81,11 +79,28 @@ class CullingManager:
         # Uncapped FPS mode: disables framerate limiter for benchmarking
         self.uncapped_fps = False
 
+        # Diagnostic Culling Inspector Mode:
+        # Front faces (Rendered) = Vibrant Green (N . V >= 0)
+        # Back faces (Culled)   = Ruby Red      (N . V <  0)
+        # This makes culling 100% visible while walking!
+        self.inspector_mode = False
+
+        # Selected Scene Section:
+        # Options: "all", "buildings", "towers", "chamber", "plaza", "nature", "stress"
+        self.selected_section = "all"
+
+        # Walking indicator
+        self.is_walking = False
+
     def apply_settings(self):
         """
         Applies current culling and rasterization settings to the active OpenGL context.
         Must be called at the start of each frame before drawing scene geometry.
         """
+        # If inspector mode is active, passes are managed per-object in scene.py
+        if self.inspector_mode:
+            return
+
         # 1. Back-Face Culling State
         if self.culling_enabled:
             glEnable(GL_CULL_FACE)
@@ -107,16 +122,26 @@ class CullingManager:
             self.user_requested_culling = True
         return self.culling_enabled
 
+    def toggle_inspector(self):
+        """
+        Toggle Culling Visual Diagnostics Mode.
+        Renders Front faces in Green (Rendered) and Back faces in Red (Culled).
+        """
+        self.inspector_mode = not self.inspector_mode
+        return self.inspector_mode
+
+    def set_section(self, section_name):
+        """Sets the currently active/inspected section."""
+        self.selected_section = section_name
+        return self.selected_section
+
     def toggle_wireframe(self):
         """Toggle Wireframe Mode ON or OFF."""
         self.wireframe_mode = not self.wireframe_mode
         return self.wireframe_mode
 
     def toggle_cull_face(self):
-        """
-        Toggle between culling GL_BACK and GL_FRONT.
-        Demonstrates that culling the wrong face inverts visibility.
-        """
+        """Toggle between culling GL_BACK and GL_FRONT."""
         if self.cull_face_mode == GL_BACK:
             self.cull_face_mode = GL_FRONT
         else:
@@ -134,6 +159,10 @@ class CullingManager:
     def toggle_stress_test(self):
         """Toggle Stress Test environment to benchmark heavy polygon loads."""
         self.stress_test_mode = not self.stress_test_mode
+        if self.stress_test_mode:
+            self.selected_section = "stress"
+        elif self.selected_section == "stress":
+            self.selected_section = "all"
         return self.stress_test_mode
 
     def toggle_fps_cap(self):
